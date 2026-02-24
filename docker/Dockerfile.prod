@@ -1,0 +1,24 @@
+# Stage 1: Build
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+RUN pip install uv
+
+COPY pyproject.toml uv.lock* ./
+RUN uv sync --no-dev
+
+# Stage 2: Runtime
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/.venv /app/.venv
+COPY src/ ./src/
+COPY config/ ./config/
+COPY .streamlit/ ./.streamlit/
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "src/ui/app.py", "--server.port=8501", "--server.headless=true"]

@@ -1,0 +1,30 @@
+# Vietnam market trading parameters
+settlement:
+  t_plus_days: 2.5  # T+2.5 settlement lag
+
+fees:
+  tax_rate: 0.001        # 0.1% selling tax
+  broker_fee_rate: 0.003  # 0.3% broker commission (typical)
+
+# Asset classes supported
+asset_classes:
+  - stocks
+  - etfs
+  - covered_warrants
+  - bonds
+  - derivatives
+
+# Risk parameters
+risk:
+  kelly_fraction: 0.5        # Half-Kelly for safety
+  max_position_pct: 0.15     # Max 15% per single position
+  max_drawdown_pct: 0.10     # Stop-loss at 10% portfolio drawdown
+  var_confidence: 0.95       # 95% VaR confidence level
+
+# Trading session (Vietnam market)
+session:
+  open: "09:00"
+  close: "15:00"
+  timezone: "Asia/Ho_Chi_Minh"
+  lunch_break_start: "11:30"
+  lunch_break_end: "13:00"

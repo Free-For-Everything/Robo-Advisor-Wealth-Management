@@ -1,0 +1,21 @@
+# Kafka broker configuration
+broker:
+  host: localhost
+  port: 9092
+
+# Topic definitions for each asset class
+topics:
+  market_ticks: "market-ticks"
+  cw_ticks: "cw-ticks"
+  bond_ticks: "bond-ticks"
+  derivative_ticks: "derivative-ticks"
+  etf_ticks: "etf-ticks"
+  alerts: "trading-alerts"
+  orders: "order-events"
+
+# Consumer group settings
+consumer:
+  group_id: "robo-advisor-group"
+  auto_offset_reset: "latest"
+  enable_auto_commit: true
+  max_poll_records: 500

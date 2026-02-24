@@ -1,0 +1,98 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: ra-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    mem_limit: 512m
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: ra-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    mem_limit: 1g
+    restart: unless-stopped
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.12
+    container_name: ra-clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    environment:
+      CLICKHOUSE_DB: robo_advisor
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-ra_user}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-ra_secret}
+    mem_limit: 2g
+    restart: unless-stopped
+
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ra-ntfy
+    command: serve
+    ports:
+      - "8080:80"
+    volumes:
+      - ntfy-cache:/var/cache/ntfy
+    mem_limit: 128m
+    restart: unless-stopped
+
+  postfix:
+    image: boky/postfix:latest
+    container_name: ra-postfix
+    environment:
+      ALLOWED_SENDER_DOMAINS: ${MAIL_DOMAIN:-localhost}
+    mem_limit: 128m
+    restart: unless-stopped
+
+  mlflow:
+    image: python:3.11-slim
+    container_name: ra-mlflow
+    command: >
+      bash -c "pip install mlflow>=2.10 && mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:///mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts"
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    mem_limit: 512m
+    restart: unless-stopped
+
+  streamlit:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.prod
+    container_name: ra-streamlit
+    ports:
+      - "8501:8501"
+    depends_on:
+      - kafka
+      - clickhouse
+      - ntfy
+    env_file:
+      - ../.env
+    mem_limit: 1g
+    restart: unless-stopped
+
+volumes:
+  clickhouse-data:
+  ntfy-cache:
+  mlflow-data:

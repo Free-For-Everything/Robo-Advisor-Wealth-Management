@@ -1,0 +1,19 @@
+# ClickHouse connection settings
+connection:
+  host: localhost
+  port: 9000
+  http_port: 8123
+  database: robo_advisor
+  user: ${CLICKHOUSE_USER}
+  password: ${CLICKHOUSE_PASSWORD}
+
+# Table schema references
+tables:
+  - market_ticks
+  - ohlcv_1m
+  - ohlcv_5m
+  - ohlcv_1d
+  - portfolio_snapshots
+  - trade_history
+  - risk_metrics
+  - ml_predictions

@@ -1,0 +1,25 @@
+# ntfy push notification settings
+ntfy:
+  url: ${NTFY_URL}
+  topic: "robo-advisor"
+  priority: "default"
+
+# Postfix email settings
+email:
+  smtp_host: localhost
+  smtp_port: 587
+  from_address: ${MAIL_FROM}
+  to_address: ${MAIL_TO}
+
+# Scheduler settings
+scheduler:
+  daily_report_time: "08:00"  # GMT+7
+  timezone: "Asia/Ho_Chi_Minh"
+
+# Alert types
+alerts:
+  - order_executed
+  - stop_loss_triggered
+  - drawdown_warning
+  - daily_pnl_report
+  - model_retrain_complete
